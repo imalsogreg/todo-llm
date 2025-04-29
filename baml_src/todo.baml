@@ -1,0 +1,148 @@
+class TodoItem {
+    id int
+    title string
+    created_at int
+    completed_at int?
+    deleted bool
+    tags Tag[]
+}
+
+class TodoList {
+    items TodoItem[]
+}
+
+enum Tag {
+    Work
+    Personal
+    Errands
+    @@dynamic
+}
+
+type Tool = MessageToUser | AddItem | AdjustItem
+
+class MessageToUser {
+    type "message_to_user" @stream.not_null
+    message string @stream.not_null
+}
+
+class AdjustItem {
+    type "adjust_item" @stream.not_null
+    item_id int
+    title string?
+    completed_at int?
+    deleted bool?
+    tags Tag[]?
+    @@stream.done
+}
+
+class AddItem {
+    type "add_item" @stream.not_null
+    title string @stream.not_null
+    tags Tag[]
+    @@stream.done
+}
+
+class GetDateTime {
+    type "get_date_time" @stream.not_null
+    @@stream.done
+}
+
+
+class ToolCallResult {
+    tool_call Tool
+    result int?
+}
+
+class State {
+    tool_history ToolCallResult[]
+    todo_list TodoList
+}
+
+class Query {
+    message string
+    date_time int
+}
+
+function SelectTools(state: State, query: Query) -> Tool[] {
+    client "openai/gpt-4o"
+    prompt #"
+        You are a helpful assistant that can help with your todo list.
+        You can adjust an item, add an item, or get the last item id.
+        Here is the state:
+        {{ state }}
+
+        When the user specifies relative times, use the current time and their
+        time delta to determine an absolute time. Never return a value like "1745877191 - 7200".
+        Instead, return a value like "1745870191".
+
+        User query: {{ query.message }}
+        That message was sent at {{ query.date_time }}
+
+        {{ ctx.output_format }}
+    "#
+}
+
+test NewFirstItem {
+    functions [SelectTools]
+    args {
+        state {
+            tool_history []
+            todo_list {
+                items []
+            }
+        }
+        query {
+            message "Add 'Take otu the trash' to Errands"
+            date_time 1719225600
+        }
+    }
+}
+
+test NewAdvice {
+    functions [SelectTools]
+    args {
+        state {
+            tool_history []
+            todo_list {
+                items []
+            }
+        }
+        query {
+            message "Help"
+            date_time 1719225600
+        }
+    }
+}
+
+test CompleteSecondItem {
+    functions [SelectTools]
+    args {
+        state {
+            tool_history []
+            todo_list {
+                items [
+                    {
+                        id 1
+                        title "Take out the trash"
+                        created_at 1719225600
+                        completed_at null
+                        deleted false
+                        tags [Errands]
+                    },
+                    {
+                        id 2
+                        title "Buy groceries"
+                        created_at 1719225600
+                        completed_at null
+                        deleted false
+                        tags [Errands]
+                    }
+                ]
+            }
+        }
+        query {
+            message "I bought the groceries 5 hours ago"
+            date_time 1719225600
+        }
+    }
+}

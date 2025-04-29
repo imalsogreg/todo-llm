@@ -1,103 +1,141 @@
+"use client";
+
 import Image from "next/image";
+import { QueryArea } from "@/components/ui/queryarea";
+import { TodoList } from "@/components/ui/todolist";
+import { MessagesToUser } from "@/components/ui/messagestouser";
+
+import { useSelectTools } from "../../baml_client/react/hooks";
+import * as types from "../../baml_client/types";
+import * as partial_types from "../../baml_client/partial_types";
+
+import { stateAtom } from "@/lib/atoms";
+import { useAtom } from "jotai";
+import { useState, useRef, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [state, setState] = useAtom(stateAtom);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // As tool calls are streamed in, we need to keep track of which
+  // which instructions we have already executed.
+  const instructionCounterRef = useRef(0);
+
+
+  const hook = useSelectTools({
+    stream: true,
+    onFinalData: (chunk) => {
+      hook.reset();
+      instructionCounterRef.current = 0;
+      setRunning(false);
+    },
+    onStreamData: (chunk) => {
+      console.log("Stream data: ", chunk, " instructionCounterRef: ", instructionCounterRef.current)
+      if (chunk) {
+        // Take the last tool off the list. Any other tools have been
+        // executed already.
+        const tool = chunk[instructionCounterRef.current];
+        console.log("Tool: ", tool)
+
+        if (tool?.type === "message_to_user" || tool === undefined) {
+          console.log("NOT INCREMENTING");
+        } else {
+          console.log("YES INCREMENTING");
+          instructionCounterRef.current = instructionCounterRef.current + 1;
+        }
+        console.log("sanity check: instructionCounterRef: ", instructionCounterRef.current)
+
+        if (tool?.type === "message_to_user") {
+          messages[messages.length - 1] = tool.message;
+        }
+
+        if (tool?.type === "add_item") {
+          if (tool) {
+            const new_item: types.TodoItem = {
+              id: state.todo_list.items.length + 1,
+              title: tool.title,
+              tags: tool?.tags ?? [],
+              created_at: Math.floor(Date.now() / 1000.0),
+              completed_at: null,
+              deleted: false,
+            }
+            state.todo_list.items.push(new_item);
+            setState(state);
+          }
+        }
+
+        if (tool?.type === "adjust_item") {
+          setState((state) => {
+            const item_id = tool.item_id;
+            // Get a reference to the item, by finding the one with the matching id.
+            const item = state.todo_list.items.find((item) => item.id === item_id);
+            if (item) {
+              item.title = tool.title ?? item.title;
+              item.completed_at = tool.completed_at;
+              item.deleted = tool.deleted ?? false
+              item.tags = tool.tags ?? [];
+            }
+            return state;
+          })
+        }
+      }
+    }
+  })
+  const { data, streamData, finalData } = hook;
+
+  const [running, setRunning] = useState(false);
+  const [messages, setMessages] = useState<string[]>([]);
+
+  async function onUserQuery(message: string) {
+    setRunning(true);
+    let now_epoch_seconds = Math.floor(Date.now() / 1000);
+
+    messages.push("NewMessage ");
+    hook.mutate(state, {
+      message: message,
+      date_time: now_epoch_seconds
+    });
+    // if (data) {
+
+    //   for await (const chunk of data) {
+    //     console.log(chunk);
+    //   }
+    // }
+    // if (streamData) {
+    //   console.log("Stream data.");
+    //   for await (const chunk of streamData) {
+    //     console.log(chunk);
+    //     switch (chunk?.type) {
+    //       case "message_to_user":
+    //         messages[messages.length - 1] += chunk.message;
+    //         break;
+    //     }
+    //   }
+    // } else {
+    //   console.error("No stream data.");
+    // }
+    // hook.reset();
+    // setRunning(false);
+
+
+  }
+
+
+  return (
+    <div className="bg-teal-200 grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="">
+        <div className="flex flex-col w-full">
+          <QueryArea onRun={onUserQuery} running={running}/>
+
+          <div className="flex flex-row">
+            <TodoList items={state.todo_list.items} />
+            <MessagesToUser messages={messages} />
+            <div>
+            </div>
+          </div>
+
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
+
