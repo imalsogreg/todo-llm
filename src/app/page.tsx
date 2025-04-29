@@ -97,7 +97,6 @@ export default function Home() {
       }
     }
   })
-  const { data, streamData, finalData } = hook;
 
 
   async function onUserQuery(message: string) {
@@ -113,21 +112,38 @@ export default function Home() {
   
   const onCheckboxClick = useCallback(async (item_id: number) => {
     console.log("onCheckboxClick: ", item_id);
-    setState((state) => {
-      const item = state.todo_list.items.find((item) => item.id === item_id);
-      if (item) {
-        // If it's already completed, uncomplete it. Otherwise complete it.
-        item.completed_at = item.completed_at ? null : Math.floor(Date.now() / 1000);
-      }
-      console.log("state: ", state);
-      return state;
-    })
-  }, [state, setState]);
+    setState((prevState) => {
+      // Create a deep copy of the state to ensure React detects the change
+      const newState = {
+        ...prevState,
+        todo_list: {
+          ...prevState.todo_list,
+          items: prevState.todo_list.items.map(item => {
+            if (item.id === item_id) {
+              // Return a new item with updated completed_at
+              return {
+                ...item,
+                completed_at: item.completed_at ? null : Math.floor(Date.now() / 1000)
+              };
+            }
+            return item;
+          })
+        }
+      };
+      console.log("new state: ", newState);
+      return newState;
+    });
+  }, [setState]);
 
   return (
     <div className="p-5">
       <main className="">
         <div className="flex flex-col w-full">
+          <div className="w-full flex flex-row justify-center">
+            <h1 className="text-4xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 drop-shadow-[0_0_0.3rem_#ffffff70]">
+              TODO-LLM
+            </h1>
+          </div>
           <QueryArea onRun={onUserQuery} running={running}/>
 
           <div className="flex flex-row">
@@ -135,6 +151,10 @@ export default function Home() {
             <MessagesToUser messages={messages} />
             <div>
             </div>
+          </div>
+
+          <div>
+            <pre>{JSON.stringify(state, null, 2)}</pre>
           </div>
 
         </div>
