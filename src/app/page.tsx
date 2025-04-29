@@ -36,17 +36,19 @@ export default function Home() {
         // Take the last tool off the list. Any other tools have been
         // executed already.
         // const tool = chunk[instructionCounterRef.current];
-        const tool = chunk[chunk.length - 1];
+        let tool_id = chunk.length - 1;
+        const tool = chunk[tool_id];
         console.log("Tool: ", tool)
 
-        if (tool && tool.type !== "message_to_user") {
-          instructionCounterRef.current = instructionCounterRef.current + 1;
-        }
+        // if (tool && tool.type !== "message_to_user") {
+        //   instructionCounterRef.current = instructionCounterRef.current + 1;
+        // }
 
-        console.log("sanity check: instructionCounterRef: ", instructionCounterRef.current)
+        console.log("sanity check: tool_id: ", tool_id)
 
-        if (tool?.type === "message_to_user") {
-          messages[messages.length - 1] = tool.message;
+        // Pass if we've already executed this instruction.
+        if (finishedInstructionsRef.current.has(tool_id)) {
+          return;
         }
 
         if (tool?.type === "add_item") {
@@ -78,6 +80,20 @@ export default function Home() {
             return state;
           })
         }
+
+        // Update the set of finished instructions.
+        if (tool) {
+          if (tool.type === "message_to_user") {
+            messages[messages.length - 1] = tool.message.value;
+            if (tool.message.state == "Complete") {
+              finishedInstructionsRef.current.add(tool_id);
+              messages.push("");
+            }
+          } else {
+            finishedInstructionsRef.current.add(tool_id);
+          }
+        }
+
       }
     }
   })
@@ -121,9 +137,6 @@ export default function Home() {
             </div>
           </div>
 
-        </div>
-        <div>
-          <pre>{JSON.stringify(state, null, 2)}</pre>
         </div>
       </main>
     </div>
