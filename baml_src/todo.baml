@@ -22,7 +22,7 @@ type Tool = MessageToUser | AddItem | AdjustItem
 
 class MessageToUser {
     type "message_to_user" @stream.not_null
-    message string @stream.not_null
+    message string @stream.not_null @stream.with_state
 }
 
 class AdjustItem {
@@ -74,6 +74,10 @@ function SelectTools(state: State, query: Query) -> Tool[] {
         When the user specifies relative times, use the current time and their
         time delta to determine an absolute time. Never return a value like "1745877191 - 7200".
         Instead, return a value like "1745870191".
+
+        When updating an item, you may be tempted to only fill out the fields
+        that need chaning. But it's important instead to fill out all the fields.
+        If you don't want to update a field, set it to the existing value.
 
         User query: {{ query.message }}
         That message was sent at {{ query.date_time }}

@@ -55,7 +55,7 @@ export namespace partial_types {
     
     export interface MessageToUser {
         type: "message_to_user"
-        message: string
+        message: StreamState<string>
     }
     
     export interface Query {
