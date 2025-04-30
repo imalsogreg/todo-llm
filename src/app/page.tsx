@@ -112,28 +112,16 @@ export default function Home() {
   
   const onCheckboxClick = useCallback(async (item_id: number) => {
     console.log("onCheckboxClick: ", item_id);
-    setState((prevState) => {
-      // Create a deep copy of the state to ensure React detects the change
-      const newState = {
-        ...prevState,
-        todo_list: {
-          ...prevState.todo_list,
-          items: prevState.todo_list.items.map(item => {
-            if (item.id === item_id) {
-              // Return a new item with updated completed_at
-              return {
-                ...item,
-                completed_at: item.completed_at ? null : Math.floor(Date.now() / 1000)
-              };
-            }
-            return item;
-          })
-        }
-      };
-      console.log("new state: ", newState);
-      return newState;
-    });
-  }, [setState]);
+    setState((state) => {
+      const item = state.todo_list.items.find((item) => item.id === item_id);
+      if (item) {
+        // If it's already completed, uncomplete it. Otherwise complete it.
+        item.completed_at = item.completed_at ? null : Math.floor(Date.now() / 1000);
+      }
+      console.log("state: ", state);
+      return state;
+    })
+  }, [state, setState]);
 
   return (
     <div className="p-5">
@@ -153,9 +141,9 @@ export default function Home() {
             </div>
           </div>
 
-          <div>
-            <pre>{JSON.stringify(state, null, 2)}</pre>
-          </div>
+          {/* <div>
+            { JSON.stringify(state, null, 2) }
+          </div> */}
 
         </div>
       </main>
