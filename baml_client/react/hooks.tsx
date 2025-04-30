@@ -356,6 +356,54 @@ function useBamlAction<FunctionName extends FunctionNames>(
   } satisfies HookOutput<FunctionName, { stream: typeof props.stream }>
 }
 /**
+ * A specialized hook for the CreateTodos BAML function that supports both streaming and non‑streaming responses.
+ *
+ * **Input Types:**
+ *
+ * - query: string
+ *
+ *
+ * **Return Type:**
+ * - **Non‑streaming:** MyTodo
+ * - **Streaming Partial:** partial_types.MyTodo
+ * - **Streaming Final:** MyTodo
+ *
+ * **Usage Patterns:**
+ * 1. **Non‑streaming (Default)**
+ *    - Best for quick responses and simple UI updates.
+ * 2. **Streaming**
+ *    - Ideal for long‑running operations or real‑time feedback.
+ *
+ * **Edge Cases:**
+ * - Ensure robust error handling via `onError`.
+ * - Handle cases where partial data may be incomplete or missing.
+ *
+ * @example
+ * ```tsx
+ * // Basic non‑streaming usage:
+ * const { data, error, isLoading, mutate } = useCreateTodos({ stream: false});
+ *
+ * // Streaming usage:
+ * const { data, streamData, isLoading, error, mutate } = useCreateTodos({
+ *   stream: true | undefined,
+ *   onStreamData: (partial) => console.log('Partial update:', partial),
+ *   onFinalData: (final) => console.log('Final result:', final),
+ *   onError: (err) => console.error('Error:', err),
+ * });
+ * ```
+ */
+export function useCreateTodos(props: HookInput<'CreateTodos', { stream: false }>): HookOutput<'CreateTodos', { stream: false }>
+export function useCreateTodos(props?: HookInput<'CreateTodos', { stream?: true }>): HookOutput<'CreateTodos', { stream: true }>
+export function useCreateTodos(
+  props: HookInput<'CreateTodos', { stream?: boolean }> = {},
+): HookOutput<'CreateTodos', { stream: true }> | HookOutput<'CreateTodos', { stream: false }> {
+  let action = Actions.CreateTodos;
+  if (isStreamingProps(props)) {
+    action = StreamingActions.CreateTodos;
+  }
+  return useBamlAction(action, props)
+}
+/**
  * A specialized hook for the SelectTools BAML function that supports both streaming and non‑streaming responses.
  *
  * **Input Types:**

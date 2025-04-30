@@ -18,11 +18,12 @@ $ pnpm add @boundaryml/baml
 import type { Check, Checked  } from "../types";
 import type { Image, Audio } from "@boundaryml/baml";
 
-import type {  AddItem,  AdjustItem,  GetDateTime,  MessageToUser,  Query,  State,  Tag,  TodoItem,  TodoList,  ToolCallResult } from "../types"
+import type {  AddItem,  AdjustItem,  GetDateTime,  MessageToUser,  MyTodo,  Query,  State,  Tag,  TodoItem,  TodoList,  ToolCallResult } from "../types"
 
 import type * as types from "../types"
 import type { partial_types }from "../partial_types";
 
 export type StreamingServerTypes = {
+  CreateTodos: partial_types.MyTodo,
   SelectTools: ((partial_types.MessageToUser | null) | (types.AddItem | null) | (types.AdjustItem | null) | null)[],
 }

@@ -1,5 +1,5 @@
 class TodoItem {
-    id int
+    id string @description("make this a uuid")
     title string
     created_at int
     completed_at int?
@@ -27,7 +27,7 @@ class MessageToUser {
 
 class AdjustItem {
     type "adjust_item" @stream.not_null
-    item_id int
+    item_id string
     title string?
     completed_at int?
     deleted bool?
@@ -63,6 +63,8 @@ class Query {
     date_time int
 }
 
+//  If the user trying to modify an item that doesn't exist, send them a message that the item is not on the list and prefix that message with the word "unkonwn item"
+
 function SelectTools(state: State, query: Query) -> Tool[] {
     client "openai/gpt-4o"
     prompt #"
@@ -82,11 +84,35 @@ function SelectTools(state: State, query: Query) -> Tool[] {
         If the user mentions finishing an item that isn't on the list, inform them that
         it's not on the list. Prefix that messages with "UNKWOWN ITEM".
 
+        {{ ctx.output_format }}
+
+        {{ _.role('user')}}
         User query: {{ query.message }}
         That message was sent at {{ query.date_time }}
-
-        {{ ctx.output_format }}
     "#
+}
+
+test TimeOutput {
+    functions [SelectTools]
+    args {
+        state {
+            tool_history []
+            todo_list {
+                items [{
+                    id 1
+                    title "Read a book"
+                    created_at 171927000
+                    completed_at null
+                    deleted false
+                    tags [Errands]
+                }]
+            }
+        }
+        query {
+            message "I finished going to the gym 2 hours ago"
+            date_time 171927200
+        }
+    }
 }
 
 test NewFirstItem {

@@ -29,7 +29,7 @@ export default class TypeBuilder {
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "AddItem","AdjustItem","GetDateTime","MessageToUser","Query","State","TodoItem","TodoList","ToolCallResult",
+            "AddItem","AdjustItem","GetDateTime","MessageToUser","MyTodo","Query","State","TodoItem","TodoList","ToolCallResult",
           ]),
           enums: new Set([
             "Tag",

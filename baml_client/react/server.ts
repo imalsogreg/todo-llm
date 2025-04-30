@@ -21,13 +21,31 @@ import { b } from '../index';
 import type { Check, Checked  } from "../types";
 import type { Image, Audio } from "@boundaryml/baml";
 
-import type {  AddItem,  AdjustItem,  GetDateTime,  MessageToUser,  Query,  State,  Tag,  TodoItem,  TodoList,  ToolCallResult } from "../types"
+import type {  AddItem,  AdjustItem,  GetDateTime,  MessageToUser,  MyTodo,  Query,  State,  Tag,  TodoItem,  TodoList,  ToolCallResult } from "../types"
 
 import type * as types from "../types"
 
 /**
  * Regular BAML server actions that return direct responses.
  */
+
+/**
+ * Executes the "CreateTodos" BAML action.
+ *
+ * This server action calls the underlying BAML function "CreateTodos"
+ * with the specified parameters.
+ *
+ * @param { string } query - Input parameter.
+ *
+ * @returns {Promise<MyTodo>} A promise that resolves with the result of the action.
+ */
+export const CreateTodos = async (
+  query: string,
+): Promise<MyTodo> => {
+  return b.CreateTodos(
+    query,
+  );
+};
 
 /**
  * Executes the "SelectTools" BAML action.

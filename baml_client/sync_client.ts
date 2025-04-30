@@ -19,7 +19,7 @@ import type { BamlRuntime, FunctionResult, BamlCtxManager, Image, Audio, ClientR
 import { toBamlError, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type * as types from "./types"
-import type {AddItem, AdjustItem, GetDateTime, MessageToUser, Query, State, Tag, TodoItem, TodoList, ToolCallResult} from "./types"
+import type {AddItem, AdjustItem, GetDateTime, MessageToUser, MyTodo, Query, State, Tag, TodoItem, TodoList, ToolCallResult} from "./types"
 import type TypeBuilder from "./type_builder"
 import { HttpRequest, HttpStreamRequest } from "./sync_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -84,6 +84,29 @@ export class BamlSyncClient {
     return this.llmStreamParser
   }
 
+  
+  CreateTodos(
+      query: string,
+      __baml_options__?: BamlCallOptions
+  ): MyTodo {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const raw = this.runtime.callFunctionSync(
+        "CreateTodos",
+        {
+          "query": query
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+      )
+      return raw.parsed(false) as MyTodo
+    } catch (error: any) {
+      throw toBamlError(error);
+    }
+  }
   
   SelectTools(
       state: State,query: Query,

@@ -21,13 +21,32 @@ import { b } from '../index';
 import type { Check, Checked  } from "../types";
 import type { Image, Audio } from "@boundaryml/baml";
 
-import type {  AddItem,  AdjustItem,  GetDateTime,  MessageToUser,  Query,  State,  Tag,  TodoItem,  TodoList,  ToolCallResult } from "../types"
+import type {  AddItem,  AdjustItem,  GetDateTime,  MessageToUser,  MyTodo,  Query,  State,  Tag,  TodoItem,  TodoList,  ToolCallResult } from "../types"
 
 import type * as types from "../types"
 
 /**
  * Streaming BAML server actions that return ReadableStreams.
  */
+
+/**
+ * Executes the streaming variant of the "CreateTodos" BAML action.
+ *
+ * This action initiates a streaming response by calling the corresponding
+ * BAML stream function. The returned stream yields incremental updates.
+ *
+ * @param { string } query - Input parameter.
+ *
+ * @returns {ReadableStream<Uint8Array>} A stream that yields incremental updates from the action.
+ */
+export const CreateTodos = async (
+  query: string,
+): Promise<ReadableStream<Uint8Array>> => {
+  const stream = b.stream.CreateTodos(
+    query,
+  );
+  return Promise.resolve(stream.toStreamable());
+};
 
 /**
  * Executes the streaming variant of the "SelectTools" BAML action.

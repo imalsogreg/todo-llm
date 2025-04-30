@@ -61,7 +61,7 @@ export interface AddItem {
 
 export interface AdjustItem {
   type: "adjust_item"
-  item_id: number
+  item_id: string
   title?: string | null
   completed_at?: number | null
   deleted?: boolean | null
@@ -80,6 +80,13 @@ export interface MessageToUser {
   
 }
 
+export interface MyTodo {
+  title: string
+  description: string
+  dueDate: string
+  
+}
+
 export interface Query {
   message: string
   date_time: number
@@ -93,7 +100,7 @@ export interface State {
 }
 
 export interface TodoItem {
-  id: number
+  id: string
   title: string
   created_at: number
   completed_at?: number | null

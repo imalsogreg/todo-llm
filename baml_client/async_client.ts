@@ -20,7 +20,7 @@ import { toBamlError, BamlStream, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {AddItem, AdjustItem, GetDateTime, MessageToUser, Query, State, Tag, TodoItem, TodoList, ToolCallResult} from "./types"
+import type {AddItem, AdjustItem, GetDateTime, MessageToUser, MyTodo, Query, State, Tag, TodoItem, TodoList, ToolCallResult} from "./types"
 import type TypeBuilder from "./type_builder"
 import { AsyncHttpRequest, AsyncHttpStreamRequest } from "./async_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -83,6 +83,29 @@ export class BamlAsyncClient {
   }
 
   
+  async CreateTodos(
+      query: string,
+      __baml_options__?: BamlCallOptions
+  ): Promise<MyTodo> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const raw = await this.runtime.callFunction(
+        "CreateTodos",
+        {
+          "query": query
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+      )
+      return raw.parsed(false) as MyTodo
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   async SelectTools(
       state: State,query: Query,
       __baml_options__?: BamlCallOptions
@@ -119,6 +142,35 @@ class BamlStreamClient {
     this.bamlOptions = bamlOptions || {}
   }
 
+  
+  CreateTodos(
+      query: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[] }
+  ): BamlStream<partial_types.MyTodo, MyTodo> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const raw = this.runtime.streamFunction(
+        "CreateTodos",
+        {
+          "query": query
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+      )
+      return new BamlStream<partial_types.MyTodo, MyTodo>(
+        raw,
+        (a): partial_types.MyTodo => a,
+        (a): MyTodo => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
   
   SelectTools(
       state: State,query: Query,

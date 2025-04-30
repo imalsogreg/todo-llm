@@ -20,12 +20,30 @@ import { toBamlError } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {AddItem, AdjustItem, GetDateTime, MessageToUser, Query, State, Tag, TodoItem, TodoList, ToolCallResult} from "./types"
+import type {AddItem, AdjustItem, GetDateTime, MessageToUser, MyTodo, Query, State, Tag, TodoItem, TodoList, ToolCallResult} from "./types"
 import type TypeBuilder from "./type_builder"
 
 export class LlmResponseParser {
   constructor(private runtime: BamlRuntime, private ctxManager: BamlCtxManager) {}
 
+  
+  CreateTodos(
+      llmResponse: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry }
+  ): MyTodo {
+    try {
+      return this.runtime.parseLlmResponse(
+        "CreateTodos",
+        llmResponse,
+        false,
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+      ) as MyTodo
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
   
   SelectTools(
       llmResponse: string,
@@ -50,6 +68,24 @@ export class LlmResponseParser {
 export class LlmStreamParser {
   constructor(private runtime: BamlRuntime, private ctxManager: BamlCtxManager) {}
 
+  
+  CreateTodos(
+      llmResponse: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry }
+  ): partial_types.MyTodo {
+    try {
+      return this.runtime.parseLlmResponse(
+        "CreateTodos",
+        llmResponse,
+        true,
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+      ) as partial_types.MyTodo
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
   
   SelectTools(
       llmResponse: string,
