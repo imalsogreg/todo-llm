@@ -23,22 +23,17 @@ export function TodoInterface() {
   };
 
   return (
-    <div className="p-5">
+    <div className="container mx-auto max-w-4xl p-5">
       <div className="flex flex-col w-full">
-        <div className="w-full flex flex-row justify-center items-center gap-4">
+        <div className="w-full flex flex-row justify-center items-center gap-4 mb-6">
           <h1 className="text-4xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 drop-shadow-[0_0_0.3rem_#ffffff70]">
             TODO-LLM
           </h1>
           <StateDialog />
         </div>
 
-        <div className="flex flex-row gap-6">
-          <div className="flex-1 min-w-0">
+        <div className="flex  gap-4 max-w-3xl mx-auto w-full">
             <TodoList onCheckboxClick={onCheckboxClick} onRun={onUserQuery} onReset={handleReset} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <MessagesToUser />
-          </div>
         </div>
       </div>
     </div>

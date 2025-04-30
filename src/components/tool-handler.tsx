@@ -136,8 +136,9 @@ export function useTodoToolHandler() {
       setState((prevState) => ({
         ...prevState,
         running: true,
-        messages: [...prevState.messages, ''],
+        messages: [...prevState.messages, message, ''],
       }));
+
       hook.mutate(state, {
         message,
         date_time: Math.floor(Date.now() / 1000),

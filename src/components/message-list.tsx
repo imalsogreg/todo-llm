@@ -26,15 +26,16 @@ function MessagesToUser() {
 
   return (
     <div className="w-full flex flex-col gap-2">
-      <AnimatePresence>
+      {/* <AnimatePresence> */}
         {state.messages
+        // .slice().reverse()
           .filter((message) => message !== '')
           .map((message, index, arr) => (
-            <motion.div
-              variants={messageVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
+            <div
+              // variants={messageVariants}
+              // initial="hidden"
+              // animate="visible"
+              // exit="exit"
               className={`p-3 rounded-lg ${
                 index === arr.length - 1
                   ? 'bg-primary/10 border-l-2 border-primary'
@@ -43,9 +44,9 @@ function MessagesToUser() {
               key={`message-${index}-${message.slice(0, 10)}`}
             >
               <p className="text-sm text-foreground">{message}</p>
-            </motion.div>
+            </div>
           ))}
-      </AnimatePresence>
+      {/* </AnimatePresence> */}
     </div>
   );
 }
