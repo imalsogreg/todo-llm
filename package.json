@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@boundaryml/baml": "file:../baml/result/lib/boundaryml-baml-0.85.1.tgz",
+    "@boundaryml/baml": "^0.86",
     "@boundaryml/baml-nextjs-plugin": "^0.1.0",
     "@radix-ui/react-slot": "^1.2.0",
     "class-variance-authority": "^0.7.1",

@@ -16,7 +16,7 @@ function TodoItem(props: { item: types.TodoItem, onCheckboxClick: (item_id: numb
     const completed_at: string =
         props.item.completed_at ? new Date(props.item.completed_at * 1000).toLocaleString() : "";
     return (
-        <div className="h-20 flex flex-row p-2 bg-slate-100 items-center gap-2">
+        <div className="h-20 flex flex-row p-2 bg-slate-100 items-center gap-2 animate-fade-in">
             <div className="">
                 <input
                   type="checkbox"

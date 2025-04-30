@@ -79,6 +79,9 @@ function SelectTools(state: State, query: Query) -> Tool[] {
         that need chaning. But it's important instead to fill out all the fields.
         If you don't want to update a field, set it to the existing value.
 
+        If the user mentions finishing an item that isn't on the list, inform them that
+        it's not on the list. Prefix that messages with "UNKWOWN ITEM".
+
         User query: {{ query.message }}
         That message was sent at {{ query.date_time }}
 

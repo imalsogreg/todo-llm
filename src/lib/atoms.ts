@@ -6,7 +6,7 @@ const todoListAtom = atomWithStorage<TodoList>("todoList", { items: [] });
 
 const messagesToUserAtom = atom<string[]>([]);
 
-const stateAtom = atom<State>({
+const stateAtom = atomWithStorage<State>("todoState", {
     tool_history: [],
     todo_list: { items: [] }
 });
