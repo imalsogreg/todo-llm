@@ -1,8 +1,6 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
-import type { State, TodoList } from '../../baml_client';
-
-const messagesToUserAtom = atom<string[]>([]);
+import type { State } from '../../baml_client';
 
 const stateAtom = atomWithStorage<
   State & { running: boolean; messages: string[] }
@@ -13,4 +11,4 @@ const stateAtom = atomWithStorage<
   messages: [],
 });
 
-export { messagesToUserAtom, stateAtom };
+export { stateAtom };

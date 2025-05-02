@@ -5,7 +5,6 @@ import { TodoList } from '@/components/todo-list';
 import { stateAtom } from '@/lib/atoms';
 import { useSetAtom } from 'jotai';
 import { useTodoToolHandler } from './tool-handler';
-import { StateDialog } from './state-dialog';
 
 export function TodoInterface() {
   const { onUserQuery, onCheckboxClick } = useTodoToolHandler();
@@ -27,7 +26,6 @@ export function TodoInterface() {
           <h1 className="text-4xl">
             TODO-LLM
           </h1>
-          <StateDialog />
         </div>
 
         <div className="flex  gap-4 max-w-3xl mx-auto w-full">
