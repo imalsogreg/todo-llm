@@ -11,17 +11,6 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { MessagesToUser } from "./message-list";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      when: "beforeChildren",
-    },
-  },
-};
-
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: {

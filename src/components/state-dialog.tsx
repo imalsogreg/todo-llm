@@ -1,7 +1,7 @@
 'use client';
 
 import { useAtomValue } from 'jotai';
-import { stateAtom, todoListAtom } from '@/lib/atoms';
+import { stateAtom } from '@/lib/atoms';
 import {
   Dialog,
   DialogContent,
@@ -14,12 +14,6 @@ import { SettingsIcon } from 'lucide-react';
 
 export function StateDialog() {
   const state = useAtomValue(stateAtom);
-  const todoList = useAtomValue(todoListAtom);
-
-  const combinedState = {
-    state,
-    todoList,
-  };
 
   return (
     <Dialog>
@@ -33,7 +27,7 @@ export function StateDialog() {
           <DialogTitle>Application State</DialogTitle>
         </DialogHeader>
         <pre className="p-4 mt-4 overflow-auto text-sm bg-secondary rounded-lg max-h-[60vh]">
-          {JSON.stringify(combinedState, null, 2)}
+          {JSON.stringify(state, null, 2)}
         </pre>
       </DialogContent>
     </Dialog>
